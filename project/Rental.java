@@ -2,39 +2,27 @@ package project;
 
 public class Rental {
 
-    private Movie _movie;
-    private int _daysRented;
+    private final Movie movie;
+    private final int daysRented;
 
     public Rental(Movie movie, int daysRented) {
-        _movie = movie;
-        _daysRented = daysRented;
+        this.movie = movie;
+        this.daysRented = daysRented;
     }
 
     public int getDaysRented() {
-        return _daysRented;
+        return daysRented;
     }
 
     public Movie getMovie() {
-        return _movie;
+        return movie;
     }
 
     public double getCharge() {
-        double thisAmount = 0;
-
-        switch (_movie.getPriceCode()) {
-            case Movie.REGULAR -> {
-                thisAmount += 2;
-                if (_daysRented > 2) thisAmount += (_daysRented - 2) * 1.5;
-            }
-            case Movie.NEW_RELEASE -> thisAmount += _daysRented * 3;
-            case Movie.CHILDRENS -> {
-                thisAmount += 1.5;
-                if (_daysRented > 3) thisAmount += (_daysRented - 3) * 1.5;
-            }
-        }
-        return thisAmount;
+        return movie.getCharge(daysRented);
     }
+
     public int getFrequentRenterPoints() {
-        if ((_movie.getPriceCode() = Movie.NEW_RELEASE) return 2; return 1;
+        return movie.calculateFrequentRenterPoints(daysRented);
     }
 }
