@@ -35,15 +35,15 @@ Observações:
 
 As classes que vamos usar fazem parte de um sistema de video-locadora, para aluguel de vídeos.
 
-Inicialmente, são três classes: `Movie` (filmes que podem ser alugados), `Rental` (dados de um aluguel) e `Customer` (clientes da locadora).
+Inicialmente, são três classes: `project.Movie` (filmes que podem ser alugados), `project.Rental` (dados de um aluguel) e `project.Customer` (clientes da locadora).
 
 Se estiver usando o repl.it, já disponibilizamos esse código inicial pronto: veja [aqui](https://replit.com/@engsoftmoderna/VideoStore).
 
 Se não estiver usando repl.it siga os passos a seguir na sua IDE ou editor favoritos.
 
-* Copie o código da classe `Movie` para um arquivo chamado `Movie.java`:
+* Copie o código da classe `project.Movie` para um arquivo chamado `project.Movie.java`:
 ```java
-public class Movie {
+public class project.Movie {
 
   public static final int  CHILDRENS = 2;
   public static final int  REGULAR = 0;
@@ -52,7 +52,7 @@ public class Movie {
   private String _title;
   private int _priceCode;
 
-  public Movie(String title, int priceCode) {
+  public project.Movie(String title, int priceCode) {
       _title = title;
       _priceCode = priceCode;
   }
@@ -71,15 +71,15 @@ public class Movie {
 }
 ```
 
-* Copie o código da classe `Rental` para um arquivo chamado `Rental.java`:
+* Copie o código da classe `project.Rental` para um arquivo chamado `project.Rental.java`:
 
 ```java
-public class Rental {
+public class project.Rental {
 
    private Movie _movie;
    private int _daysRented;
 
-   public Rental(Movie movie, int daysRented) {
+   public project.Rental(Movie movie, int daysRented) {
       _movie = movie;
       _daysRented = daysRented;
    }
@@ -94,72 +94,74 @@ public class Rental {
 }
 ```
 
-* Copie o código da classe `Customer` para um arquivo chamado `Customer.java`:
+* Copie o código da classe `project.Customer` para um arquivo chamado `project.Customer.java`:
 
 ```java
+import project.Rental;
+
 import java.util.Enumeration;
 import java.util.Vector;
 
-public class Customer {
-   private String _name;
-   private Vector _rentals = new Vector();
+public class project.Customer {
+    private String _name;
+    private Vector _rentals = new Vector();
 
-   public Customer (String name){
-      _name = name;
-   }
+    public project.Customer(String name) {
+        _name = name;
+    }
 
-   public void addRental(Rental arg) {
-      _rentals.addElement(arg);
-   }
-   
-   public String getName (){
-      return _name;
-   }
-  
-  public String statement() {
-     double totalAmount = 0;
-     int frequentRenterPoints = 0;
-     Enumeration rentals = _rentals.elements();
-     String result = "Rental Record for " + getName() + "\n";
-     while (rentals.hasMoreElements()) {
-        double thisAmount = 0;
-        Rental each = (Rental) rentals.nextElement();
+    public void addRental(Rental arg) {
+        _rentals.addElement(arg);
+    }
 
-        //determine amounts for each line
-        switch (each.getMovie().getPriceCode()) {
-           case Movie.REGULAR:
-              thisAmount += 2;
-              if (each.getDaysRented() > 2)
-                 thisAmount += (each.getDaysRented() - 2) * 1.5;
-              break;
-           case Movie.NEW_RELEASE:
-              thisAmount += each.getDaysRented() * 3;
-              break;
-           case Movie.CHILDRENS:
-              thisAmount += 1.5;
-              if (each.getDaysRented() > 3)
-                 thisAmount += (each.getDaysRented() - 3) * 1.5;
-               break;
+    public String getName() {
+        return _name;
+    }
+
+    public String statement() {
+        double totalAmount = 0;
+        int frequentRenterPoints = 0;
+        Enumeration rentals = _rentals.elements();
+        String result = "project.Rental Record for " + getName() + "\n";
+        while (rentals.hasMoreElements()) {
+            double thisAmount = 0;
+            Rental each = (Rental) rentals.nextElement();
+
+            //determine amounts for each line
+            switch (each.getMovie().getPriceCode()) {
+                case Movie.REGULAR:
+                    thisAmount += 2;
+                    if (each.getDaysRented() > 2)
+                        thisAmount += (each.getDaysRented() - 2) * 1.5;
+                    break;
+                case Movie.NEW_RELEASE:
+                    thisAmount += each.getDaysRented() * 3;
+                    break;
+                case Movie.CHILDRENS:
+                    thisAmount += 1.5;
+                    if (each.getDaysRented() > 3)
+                        thisAmount += (each.getDaysRented() - 3) * 1.5;
+                    break;
+            }
+
+            // add frequent renter points
+            frequentRenterPoints++;
+            // add bonus for a two day new release rental
+            if ((each.getMovie().getPriceCode() == Movie.NEW_RELEASE) &&
+                    each.getDaysRented() > 1) frequentRenterPoints++;
+
+            //show figures for this rental
+            result += "\t" + each.getMovie().getTitle() + "\t" +
+                    String.valueOf(thisAmount) + "\n";
+            totalAmount += thisAmount;
+
         }
-
-        // add frequent renter points
-        frequentRenterPoints ++;
-        // add bonus for a two day new release rental
-        if ((each.getMovie().getPriceCode() == Movie.NEW_RELEASE) &&
-            each.getDaysRented() > 1) frequentRenterPoints ++;
-
-        //show figures for this rental
-        result += "\t" + each.getMovie().getTitle()+ "\t" +
-            String.valueOf(thisAmount) + "\n";
-        totalAmount += thisAmount;
-
-     }
-     //add footer lines
-     result +=  "Amount owed is " + String.valueOf(totalAmount) + "\n";
-     result += "You earned " + String.valueOf(frequentRenterPoints) +
-             " frequent renter points";
-     return result;
-   }
+        //add footer lines
+        result += "Amount owed is " + String.valueOf(totalAmount) + "\n";
+        result += "You earned " + String.valueOf(frequentRenterPoints) +
+                " frequent renter points";
+        return result;
+    }
 }
 ```
 
@@ -171,21 +173,24 @@ Observação: descrição é a string que descreve a modificação realizada no 
 
 # Refactoring 1: Extract Method
 
-* **Extrair um método** chamado `amountFor(Rental each)` de `Customer.statement()`; já que esse último é um método maior e que faz muitas coisas. O método extraído vai conter o código relativo ao comentário *determine amounts for each line*, ou seja, você deve extrair o trecho de código referente ao `switch-case`.
+* **Extrair um método** chamado `amountFor(project.Rental each)` de `project.Customer.statement()`; já que esse último é um método maior e que faz muitas coisas. O método extraído vai conter o código relativo ao comentário *determine amounts for each line*, ou seja, você deve extrair o trecho de código referente ao `switch-case`.
 
 * Lembre-se de atualizar a chamada em `statement()` após as modificações:
 
 ```java
-class Customer ...
-   public String statement() {
-      ...
-      thisAmount = amountFor(each);
-      ...
-   }
+import project.Rental;
 
-   private double amountFor(Rental each) {
-      //Adicionar o trecho de código extraído.
-   }
+class project.Customer ...
+
+public String statement() {
+      ...
+    thisAmount = amountFor(each);
+      ...
+}
+
+private double amountFor(Rental each) {
+    //Adicionar o trecho de código extraído.
+}
 ```
 Verifique se existem erros de compilação no seu código.
 
@@ -196,7 +201,9 @@ Verifique se existem erros de compilação no seu código.
 * **Renomear** o parâmetro de `amountFor` para ter o nome `aRental`, ou seja, você precisa modificar:
 
 ```java
-private double amountFor(Rental each){
+import project.Rental;
+
+private double amountFor(Rental each) {
    ...
 }
 ```
@@ -204,7 +211,9 @@ private double amountFor(Rental each){
 Para:
 
 ```java
-private double amountFor(Rental aRental){
+import project.Rental;
+
+private double amountFor(Rental aRental) {
    ...
 }
 ```
@@ -215,12 +224,12 @@ Verifique se existem erros de compilação no seu código.
 
 # Refactoring 3: Move and Rename Method
 
-* **Mover o método** `amountFor(Rental each)` da classe `Customer` para a classe `Rental`, já que esse método não usa informações da primeira, mas sim da segunda classe. O método deve ser movido com um **novo nome** `getCharge()`. A ideia é que refactorings devem ser feitos em pequenos passos, para garantir que nada está sendo quebrado.
+* **Mover o método** `amountFor(project.Rental each)` da classe `project.Customer` para a classe `project.Rental`, já que esse método não usa informações da primeira, mas sim da segunda classe. O método deve ser movido com um **novo nome** `getCharge()`. A ideia é que refactorings devem ser feitos em pequenos passos, para garantir que nada está sendo quebrado.
 
 * Lembre-se de atualizar a chamada em `statement()`, ou seja: 
 
 ```java
-class Customer ...
+class project.Customer ...
    public String statement() {
       ...
       thisAmount = each.getCharge();
@@ -229,13 +238,13 @@ class Customer ...
 ```
 
 ```java
-class Rental ...
+class project.Rental ...
    public double getCharge() {
       ...
    }
 ```
 
-**Dica:** Observe que após mover e renomear o método, você deve **remover o parâmetro** `Rental`. Este parâmetro é desnecessário, já que os métodos chamados estão na mesma classe.
+**Dica:** Observe que após mover e renomear o método, você deve **remover o parâmetro** `project.Rental`. Este parâmetro é desnecessário, já que os métodos chamados estão na mesma classe.
 
 Verifique se existem erros de compilação no seu código.
 
@@ -243,35 +252,38 @@ Verifique se existem erros de compilação no seu código.
 
 # Refactoring 4: Replace Temp with Query
 
-Esse refactoring substitui uma variável local e temporária (temp) por uma chamada de função (query). No caso, vamos **substituir** toda referência a `thisAmount` por uma chamada a `each.getCharge()`  em `Customer.statement()`. Veja o código após o refactoring:
+Esse refactoring substitui uma variável local e temporária (temp) por uma chamada de função (query). No caso, vamos **substituir** toda referência a `thisAmount` por uma chamada a `each.getCharge()`  em `project.Customer.statement()`. Veja o código após o refactoring:
 
 ```java
+import project.Movie;
+import project.Rental;
+
 public String statement() {
-   double totalAmount = 0;
-   int frequentRenterPoints = 0;
-   Enumeration rentals = _rentals.elements();
-   String result = "Rental Record for " + getName() + "\n";
-   while (rentals.hasMoreElements()) {
-      Rental each = (Rental) rentals.nextElement();
+    double totalAmount = 0;
+    int frequentRenterPoints = 0;
+    Enumeration rentals = _rentals.elements();
+    String result = "project.Rental Record for " + getName() + "\n";
+    while (rentals.hasMoreElements()) {
+        Rental each = (Rental) rentals.nextElement();
 
-      // add frequent renter points
-      frequentRenterPoints ++;
-      // add bonus for a two day new release rental
-      if ((each.getMovie().getPriceCode() == Movie.NEW_RELEASE) &&
-         each.getDaysRented() > 1) frequentRenterPoints ++;
+        // add frequent renter points
+        frequentRenterPoints++;
+        // add bonus for a two day new release rental
+        if ((each.getMovie().getPriceCode() == Movie.NEW_RELEASE) &&
+                each.getDaysRented() > 1) frequentRenterPoints++;
 
-      // show figures for this rental
-      result += "\t" + each.getMovie().getTitle()+ "\t" + String.valueOf
-         (each.getCharge()) + "\n";
-      totalAmount += each.getCharge();
+        // show figures for this rental
+        result += "\t" + each.getMovie().getTitle() + "\t" + String.valueOf
+                (each.getCharge()) + "\n";
+        totalAmount += each.getCharge();
 
-   }
-   
-   // add footer lines
-   result +=  "Amount owed is " + String.valueOf(totalAmount) + "\n";
-   result += "You earned " + String.valueOf(frequentRenterPoints)
-              + " frequent renter points";
-   return result;
+    }
+
+    // add footer lines
+    result += "Amount owed is " + String.valueOf(totalAmount) + "\n";
+    result += "You earned " + String.valueOf(frequentRenterPoints)
+            + " frequent renter points";
+    return result;
 }
 ```
 
@@ -285,13 +297,13 @@ Verifique se existem erros de compilação no seu código.
 
 # Refactoring 5: Extract and Move Method
 
-* Vamos decompor mais uma vez `statement()`, para ir diminuindo o seu tamanho e complexidade. Para isso, vamos **extrair um método** chamado `getFrequentRenterPoints()`  com o código relativo ao comentário *add frequent renter points*. Você precisa **mover** o método extraído para a classe `Rental`.
+* Vamos decompor mais uma vez `statement()`, para ir diminuindo o seu tamanho e complexidade. Para isso, vamos **extrair um método** chamado `getFrequentRenterPoints()`  com o código relativo ao comentário *add frequent renter points*. Você precisa **mover** o método extraído para a classe `project.Rental`.
 
 * A variável `frequentRenterPoints` receberá o retorno da função extraída: 
 
 
 ```java
-class Customer ...
+class project.Customer ...
    public String statement() {
       ...
       frequentRenterPoints += each.getFrequentRenterPoints();
@@ -300,7 +312,7 @@ class Customer ...
 ```
 
 ```java
-class Rental ...
+class project.Rental ...
    public int getFrequentRenterPoints() { 
       //Adicionar o trecho de código extraído.
    }
@@ -314,54 +326,55 @@ Verifique se existem erros de compilação no seu código.
 
 # Refactoring 6: Replace Temp With Query
 
-Mais duas variáveis locais (temp) vão ser extraídas para funções (queries) na classe `Customer`. São elas:
+Mais duas variáveis locais (temp) vão ser extraídas para funções (queries) na classe `project.Customer`. São elas:
 
 * `totalAmount` vai ser substituída por `getTotalCharge()`
 * `frequentRenterPoints` vai ser substituída por `getTotalFrequentRenterPoints()`.
 
 Veja como deve ficar o código após esses dois refactorings:
 
-
 ```java
-class Customer...
+import project.Rental;
 
-   public String statement() {
-      Enumeration rentals = _rentals.elements();
-      String result = "Rental Record for " + getName() + "\n";
-      while (rentals.hasMoreElements()) {
-         Rental each = (Rental) rentals.nextElement();
+class project.Customer...
 
-         // show figures for this rental
-         result += "\t" + each.getMovie().getTitle()+ "\t" +
-                  String.valueOf(each.getCharge()) + "\n";
-      }
+public String statement() {
+    Enumeration rentals = _rentals.elements();
+    String result = "project.Rental Record for " + getName() + "\n";
+    while (rentals.hasMoreElements()) {
+        Rental each = (Rental) rentals.nextElement();
 
-      // add footer lines
-      result +=  "Amount owed is " + String.valueOf(getTotalCharge()) + "\n";
-      result += "You earned " + String.valueOf(getTotalFrequentRenterPoints()) +
-                     " frequent renter points";
-      return result;
-   }
-      
-   private double getTotalCharge() {
-      double result = 0;
-      Enumeration rentals = _rentals.elements();
-      while (rentals.hasMoreElements()) {
-         Rental each = (Rental) rentals.nextElement();
-         result += each.getCharge();
-         }
-         return result;
-   }
+        // show figures for this rental
+        result += "\t" + each.getMovie().getTitle() + "\t" +
+                String.valueOf(each.getCharge()) + "\n";
+    }
 
-   private int getTotalFrequentRenterPoints(){
-      int result = 0;
-      Enumeration rentals = _rentals.elements();
-      while (rentals.hasMoreElements()) {
-         Rental each = (Rental) rentals.nextElement();
-         result += each.getFrequentRenterPoints();
-      }
-      return result;
-   }
+    // add footer lines
+    result += "Amount owed is " + String.valueOf(getTotalCharge()) + "\n";
+    result += "You earned " + String.valueOf(getTotalFrequentRenterPoints()) +
+            " frequent renter points";
+    return result;
+}
+
+private double getTotalCharge() {
+    double result = 0;
+    Enumeration rentals = _rentals.elements();
+    while (rentals.hasMoreElements()) {
+        Rental each = (Rental) rentals.nextElement();
+        result += each.getCharge();
+    }
+    return result;
+}
+
+private int getTotalFrequentRenterPoints() {
+    int result = 0;
+    Enumeration rentals = _rentals.elements();
+    while (rentals.hasMoreElements()) {
+        Rental each = (Rental) rentals.nextElement();
+        result += each.getFrequentRenterPoints();
+    }
+    return result;
+}
 ```
 
 Dois comentários breves, sobre alguns pontos que você já pode estar pensando sobre os últimos refactorings:
@@ -377,27 +390,30 @@ Verifique se existem erros de compilação no seu código.
 
 Neste passo, não vamos refatorar, mas introduzir uma nova feature: imprimir o comprovante de aluguel em HTML.
 
-Para isso, vamos criar um novo método, chamado `htmlstatement` na classe `Customer`:
+Para isso, vamos criar um novo método, chamado `htmlstatement` na classe `project.Customer`:
 
 ```java
-class Customer ...
-   public String htmlStatement() {
-      Enumeration rentals = _rentals.elements();
-      String result = "<H1>Rentals for <EM>" + getName() + "</EM></H1><P>\n";
-      while (rentals.hasMoreElements()) {
-         Rental each = (Rental) rentals.nextElement();
-         // show figures for each rental
-         result += each.getMovie().getTitle()+ ": " +
-                  String.valueOf(each.getCharge()) + "<BR>\n";
-      }
-      
-      // add footer lines
-      result +=  "<P>You owe <EM>" + String.valueOf(getTotalCharge()) + "</EM><P>\n";
-      result += "On this rental you earned <EM>" +
+import project.Rental;
+
+class project.Customer ...
+
+public String htmlStatement() {
+    Enumeration rentals = _rentals.elements();
+    String result = "<H1>Rentals for <EM>" + getName() + "</EM></H1><P>\n";
+    while (rentals.hasMoreElements()) {
+        Rental each = (Rental) rentals.nextElement();
+        // show figures for each rental
+        result += each.getMovie().getTitle() + ": " +
+                String.valueOf(each.getCharge()) + "<BR>\n";
+    }
+
+    // add footer lines
+    result += "<P>You owe <EM>" + String.valueOf(getTotalCharge()) + "</EM><P>\n";
+    result += "On this rental you earned <EM>" +
             String.valueOf(getTotalFrequentRenterPoints()) +
             "</EM> frequent renter points<P>";
-      return result;
-   }
+    return result;
+}
 ```
 
 Vantagem: conseguimos reusar todos os métodos criados anteriormente, incluindo:  `getCharge()`, `getTotalCharge()` e `getTotalFrequentRenterPoints()`. Por isso, a criação do novo método foi bem rápida e não causou duplicação de código (ou uma duplicação pequena, assumindo que ainda existe alguma lógica repetida, com o método `statement`).
@@ -412,19 +428,19 @@ Nós vamos realizar este refactoring em sete passos.
 
 ## Passo 1: Extract and Move Method
 
-* Primeiro, não faz sentido ter um switch que depende de um atributo (`_priceCode`) de uma outra classe (`Movie`). Logo, você deve **extrair e mover** o código de `getCharge()` na classe Rental para um método chamado `getCharge(int daysRented)` na classe Movie.
+* Primeiro, não faz sentido ter um switch que depende de um atributo (`_priceCode`) de uma outra classe (`project.Movie`). Logo, você deve **extrair e mover** o código de `getCharge()` na classe project.Rental para um método chamado `getCharge(int daysRented)` na classe project.Movie.
 
 * O método antigo agora apenas inclui uma chamada para o método novo: 
 
 ```java 
-class Rental ...
+class project.Rental ...
    public double getCharge(){
       return _movie.getCharge(_daysRented);
    }
 ```
 
 ```java 
-class Movie ...
+class project.Movie ...
    public double getCharge(int daysRented){
        //Adicionar o trecho de código extraído.
    }
@@ -436,20 +452,20 @@ Verifique se existem erros de compilação no seu código.
 
 ## Passo 2: Extract and Move Method
 
-* Vamos agora também **extrair** o código de `getFrequentRenterPoints()`  para `getFrequentRenterPoints(int daysRented)` e **movê-lo** para a classe `Movie`; ou seja, é melhor que métodos que usam informações sobre tipos de filme estejam todos na classe `Movie`.
+* Vamos agora também **extrair** o código de `getFrequentRenterPoints()`  para `getFrequentRenterPoints(int daysRented)` e **movê-lo** para a classe `project.Movie`; ou seja, é melhor que métodos que usam informações sobre tipos de filme estejam todos na classe `project.Movie`.
 
 * O método antigo agora apenas inclui uma chamada para o método novo: 
 
 
 ```java 
-class Rental ...
+class project.Rental ...
    public int getFrequentRenterPoints(){
       return _movie.getFrequentRenterPoints(_daysRented);
    }
 ```
 
 ```java 
-class Movie ...
+class project.Movie ...
    public int getFrequentRenterPoints(int daysRented){
        //Adicionar o trecho de código extraído.
    }
@@ -479,34 +495,40 @@ public abstract class Price {
 * Copie o código da classe `ChildrensPrice` para um arquivo chamado `ChildrensPrice.java`:
 
 ```java  
+import project.Movie;
+
 public class ChildrensPrice extends Price {
-   public int getPriceCode() {
-       return Movie.CHILDRENS;
-   }
+    public int getPriceCode() {
+        return Movie.CHILDRENS;
+    }
 }
 ```
 
 * Copie o código da classe `NewReleasePrice` para um arquivo chamado `NewReleasePrice.java`:
 
 ```java
+import project.Movie;
+
 public class NewReleasePrice extends Price {
-   public int getPriceCode() {
-       return Movie.NEW_RELEASE;
-   }
+    public int getPriceCode() {
+        return Movie.NEW_RELEASE;
+    }
 }
 ```
 
 * Finalmente, copie o código da classe `RegularPrice` para um arquivo chamado `RegularPrice.java`:
 
 ```java
+import project.Movie;
+
 public class RegularPrice extends Price {
-   public int getPriceCode() {
-       return Movie.REGULAR;
-   }
+    public int getPriceCode() {
+        return Movie.REGULAR;
+    }
 }
 ```
 
-Agora, em `Movie`, vamos:
+Agora, em `project.Movie`, vamos:
 * remover o campo `_priceCode`
 * criar um campo `_price` do tipo `Price`
 * alterar o construtor, para chamar `_price.setPriceCode`
@@ -514,11 +536,11 @@ Agora, em `Movie`, vamos:
 * remover o campo `_priceCode`, criar um campo `_price` do tipo `Price`, alterar o construtor, e atualizar os métodos `getPriceCode` e `setPriceCode`:
 
 ```java
-class Movie...
+class project.Movie...
 
    private Price _price;
 
-   public Movie(String name, int priceCode) {
+   public project.Movie(String name, int priceCode) {
       _title = name;
       setPriceCode(priceCode);
    }
@@ -551,12 +573,12 @@ Verifique se existem erros de compilação no seu código.
 
 ## Passo 4: Extract and Move Method
 
-* Mais um refactoring, agora você precisa  **extrair e mover** `getCharge(int)` da classe `Movie` para `getCharge(int)` na classe `Price`.
+* Mais um refactoring, agora você precisa  **extrair e mover** `getCharge(int)` da classe `project.Movie` para `getCharge(int)` na classe `Price`.
 
 * O método antigo agora apenas inclui uma chamada para o método novo: 
 
 ```java
-class Movie ...
+class project.Movie ...
    public double getCharge(int daysRented) {
          return _price.getCharge(daysRented);
    }
@@ -616,12 +638,12 @@ Verifique se existem erros de compilação no seu código.
 
 ## Passo 6: Extract and Move Method 
 
-* E agora vamos fazer algo bem parecido com o método `getFrequentRenterPoints(int)`. Para isso, como um primeiro passo, ainda intermediário, você precisa **extrair e mover** o código de `getFrequentRenterPoints(int)` da classe `Movie` para o método `getFrequentRenterPoints(int)` em `Price`.
+* E agora vamos fazer algo bem parecido com o método `getFrequentRenterPoints(int)`. Para isso, como um primeiro passo, ainda intermediário, você precisa **extrair e mover** o código de `getFrequentRenterPoints(int)` da classe `project.Movie` para o método `getFrequentRenterPoints(int)` em `Price`.
 
 * O método antigo agora apenas inclui uma chamada para o método novo: 
 
 ```java
-class Movie ...
+class project.Movie ...
    public int getFrequentRenterPoints(int daysRented) {
       return _price.getFrequentRenterPoints(daysRented);
    }
@@ -664,12 +686,12 @@ Verifique se existem erros de compilação no seu código.
 
 # Refactoring 8: Template Method
 
-A classe `Customer` possui dois métodos para imprimir informações sobre a dívida dos clientes.
+A classe `project.Customer` possui dois métodos para imprimir informações sobre a dívida dos clientes.
 
 O método `statement()` imprime os dados em formato ASCII e o método `htmlStatement()` em formato HTML: 
 
 ```java
-class Customer...
+class project.Customer...
    public String statement() {
       ...
    }
@@ -717,41 +739,44 @@ public class HtmlStatement extends Statement {
 * Em seguida, você deve **extrair e mover** o código de `statement()` para um método chamado `value` na classe `TextStatement`. O método antigo agora apenas inclui uma chamada para o método novo:
 
 ```java
-class Customer...
+class project.Customer...
    public String statement() {
       return new TextStatement().value(this);
    }
 ```
 
 ```java
+import project.Customer;import project.Rental;
+
 import java.util.Enumeration;
 
 class TextStatement...
-   public String value(Customer aCustomer) {
-      Enumeration rentals = aCustomer.getRentals();
-      String result = "Rental Record for " + aCustomer.getName() +
-      "\n";
-      while (rentals.hasMoreElements()) {
-         Rental each = (Rental) rentals.nextElement();
-         //show figures for this rental
-         result += "\t" + each.getMovie().getTitle()+ "\t" +
-         String.valueOf(each.getCharge()) + "\n";
-      }
-      //add footer lines
-      result += "Amount owed is " +
-      String.valueOf(aCustomer.getTotalCharge()) + "\n";
-      result += "You earned " +
-      String.valueOf(aCustomer.getTotalFrequentRenterPoints()) +
-      " frequent renter points";
-      return result;
-   }
+
+public String value(Customer aCustomer) {
+    Enumeration rentals = aCustomer.getRentals();
+    String result = "project.Rental Record for " + aCustomer.getName() +
+            "\n";
+    while (rentals.hasMoreElements()) {
+        Rental each = (Rental) rentals.nextElement();
+        //show figures for this rental
+        result += "\t" + each.getMovie().getTitle() + "\t" +
+                String.valueOf(each.getCharge()) + "\n";
+    }
+    //add footer lines
+    result += "Amount owed is " +
+            String.valueOf(aCustomer.getTotalCharge()) + "\n";
+    result += "You earned " +
+            String.valueOf(aCustomer.getTotalFrequentRenterPoints()) +
+            " frequent renter points";
+    return result;
+}
 
 ```
 
-* Precisamos tornar os métodos `getTotalFrequentRenterPoints()` e `getTotalCharge()` públicos na classe `Customer` para acessá-los em `TextStatement`. Além disso, precisamos adicionar `getRentals()`
+* Precisamos tornar os métodos `getTotalFrequentRenterPoints()` e `getTotalCharge()` públicos na classe `project.Customer` para acessá-los em `TextStatement`. Além disso, precisamos adicionar `getRentals()`
 
 ```java
-class Customer ...
+class project.Customer ...
 
    public Enumeration getRentals() {
 	   return _rentals.elements();
@@ -769,34 +794,37 @@ class Customer ...
 * Da mesma forma, você deve **extrair e mover** o código de `htmlStatement()` para um método chamado `value` na classe `HtmlStatement`. O método antigo agora apenas inclui uma chamada para o método novo:
 
 ```java
-class Customer...
+class project.Customer...
    public String htmlStatement() {
       return new HtmlStatement().value(this);
    }
 ```
 
 ```java
+import project.Customer;import project.Rental;
+
 import java.util.Enumeration;
 
 class HtmlStatement...
-   public String value(Customer aCustomer) {
-      Enumeration rentals = aCustomer.getRentals();
-      String result = "<H1>Rentals for <EM>" + aCustomer.getName() +
-      "</EM></H1><P>\n";
-      while (rentals.hasMoreElements()) {
-         Rental each = (Rental) rentals.nextElement();
-         //show figures for each rental
-         result += each.getMovie().getTitle()+ ": " +
-         String.valueOf(each.getCharge()) + "<BR>\n";
-      }
-      //add footer lines
-      result += "<P>You owe <EM>" +
-      String.valueOf(aCustomer.getTotalCharge()) + "</EM><P>\n";
-      result += "On this rental you earned <EM>" + 
-      String.valueOf(aCustomer.getTotalFrequentRenterPoints()) +
-      "</EM> frequent renter points<P>";
-      return result;
-   }
+
+public String value(Customer aCustomer) {
+    Enumeration rentals = aCustomer.getRentals();
+    String result = "<H1>Rentals for <EM>" + aCustomer.getName() +
+            "</EM></H1><P>\n";
+    while (rentals.hasMoreElements()) {
+        Rental each = (Rental) rentals.nextElement();
+        //show figures for each rental
+        result += each.getMovie().getTitle() + ": " +
+                String.valueOf(each.getCharge()) + "<BR>\n";
+    }
+    //add footer lines
+    result += "<P>You owe <EM>" +
+            String.valueOf(aCustomer.getTotalCharge()) + "</EM><P>\n";
+    result += "On this rental you earned <EM>" +
+            String.valueOf(aCustomer.getTotalFrequentRenterPoints()) +
+            "</EM> frequent renter points<P>";
+    return result;
+}
 ```
 
 Agora, nós temos dois métodos similares nas respectivas subclasses. 
@@ -810,16 +838,15 @@ Verifique se existem erros de compilação no seu código.
 
 Neste passo, nós temos dois métodos similares nas subclasses. Portanto, podemos usar o padrão **Template Method**. Siga as instruções abaixo para criar o método template, bem como os métodos abstratos que ele chama, na superclasse `Statement`.
 
-
 ```java
-class TextStatement...
+import project.Customer;class TextStatement...
    public String value(Customer aCustomer) {
       ...
    }
 ```
 
 ```java      
-class HtmlStatement...
+import project.Customer;class HtmlStatement...
    public String value(Customer aCustomer) {
       ...
    }
