@@ -2,34 +2,37 @@ package project;
 
 public class Movie {
 
-    public enum PriceCode {
-        CHILDRENS,
-        REGULAR,
-        NEW_RELEASE
-    }
+    public static final int CHILDRENS = 2;
+    public static final int REGULAR = 0;
+    public static final int NEW_RELEASE = 1;
 
     private final String title;
-    private PriceCode priceCode;
+    private Price price;
 
-    public Movie(String title, PriceCode priceCode) {
+    public Movie(String title, int priceCode) {
         this.title = title;
-        this.priceCode = priceCode;
-    }
-
-    public PriceCode getPriceCode() {
-        return priceCode;
-    }
-
-    public void setPriceCode(PriceCode priceCode) {
-        this.priceCode = priceCode;
+        setPriceCode(priceCode);
     }
 
     public String getTitle() {
         return title;
     }
 
+    public int getPriceCode() {
+        return price.getPriceCode();
+    }
+
+    public void setPriceCode(int priceCode) {
+        switch (priceCode) {
+            case REGULAR -> this.price = new RegularPrice();
+            case CHILDRENS -> this.price = new ChildrensPrice();
+            case NEW_RELEASE -> this.price = new NewReleasePrice();
+            default -> throw new IllegalArgumentException("Invalid Price Code");
+        }
+    }
+
     public double getCharge(int daysRented) {
-        return switch (priceCode) {
+        return switch (getPriceCode()) {
             case REGULAR -> {
                 double amount = 2;
                 if (daysRented > 2) amount += (daysRented - 2) * 1.5;
@@ -41,9 +44,11 @@ public class Movie {
                 if (daysRented > 3) amount += (daysRented - 3) * 1.5;
                 yield amount;
             }
+            default -> throw new IllegalStateException("Unexpected value: " + getPriceCode());
         };
     }
+
     public int getFrequentRenterPoints(int daysRented) {
-        return (priceCode == PriceCode.NEW_RELEASE && daysRented > 1) ? 2 : 1;
+        return (getPriceCode() == NEW_RELEASE && daysRented > 1) ? 2 : 1;
     }
 }
