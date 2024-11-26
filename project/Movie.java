@@ -43,7 +43,7 @@ public class Movie {
             }
         };
     }
-    public int calculateFrequentRenterPoints(int daysRented) {
+    public int getFrequentRenterPoints(int daysRented) {
         return (priceCode == PriceCode.NEW_RELEASE && daysRented > 1) ? 2 : 1;
     }
 }
