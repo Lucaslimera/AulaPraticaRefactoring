@@ -32,20 +32,7 @@ public class Movie {
     }
 
     public double getCharge(int daysRented) {
-        return switch (getPriceCode()) {
-            case REGULAR -> {
-                double amount = 2;
-                if (daysRented > 2) amount += (daysRented - 2) * 1.5;
-                yield amount;
-            }
-            case NEW_RELEASE -> daysRented * 3;
-            case CHILDRENS -> {
-                double amount = 1.5;
-                if (daysRented > 3) amount += (daysRented - 3) * 1.5;
-                yield amount;
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + getPriceCode());
-        };
+        return price.getCharge(daysRented);
     }
 
     public int getFrequentRenterPoints(int daysRented) {
