@@ -15,4 +15,9 @@ public class RegularPrice extends Price {
         }
         return result;
     }
+
+    @Override
+    public int getFrequentRenterPoints(int daysRented) {
+        return 1;  // Filmes regulares sempre geram 1 ponto
+    }
 }

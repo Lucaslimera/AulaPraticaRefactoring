@@ -15,4 +15,9 @@ public class ChildrensPrice extends Price {
         }
         return result;
     }
+
+    @Override
+    public int getFrequentRenterPoints(int daysRented) {
+        return 1;  // Filmes infantis sempre geram 1 ponto
+    }
 }
