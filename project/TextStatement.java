@@ -3,12 +3,13 @@ package project;
 public class TextStatement extends Statement {
 
     @Override
-    public String value(Customer aCustomer) {
+    protected String createHeader(Customer aCustomer) {
+        return "Rental Record for " + aCustomer.getName() + "\n";
+    }
 
-        String header = "Rental Record for ";
-        String footer = "Amount owed is ";
-
-
-        return prepareStatement(aCustomer, header, footer);
+    @Override
+    protected String createFooter(Customer aCustomer) {
+        return "Amount owed is " + String.valueOf(aCustomer.getTotalCharge()) + "\n" +
+                "You earned " + String.valueOf(aCustomer.getTotalFrequentRenterPoints()) + " frequent renter points";
     }
 }
