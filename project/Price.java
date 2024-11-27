@@ -2,9 +2,12 @@ package project;
 
 public abstract class Price {
 
-    public abstract double getCharge(int daysRented);
-
     public abstract int getPriceCode();
 
-    public abstract int getFrequentRenterPoints(int daysRented);
+    public abstract double getCharge(int daysRented);
+
+
+    public int getFrequentRenterPoints(int daysRented) {
+        return 1;
+    }
 }

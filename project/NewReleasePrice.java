@@ -14,6 +14,6 @@ public class NewReleasePrice extends Price {
 
     @Override
     public int getFrequentRenterPoints(int daysRented) {
-        return (daysRented > 1) ? 2 : 1;  // Filmes novos geram 2 pontos se alugados por mais de 1 dia
+        return (daysRented > 1) ? 2 : 1;
     }
 }
